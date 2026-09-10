@@ -1,201 +1,120 @@
-# Operations Runbook
+# Operations runbook
 
-For whoever is on the hook when something breaks — including people who did not build this.
+For the support owner and incoming developer. Contacts and account ownership belong in the
+[handoff checklist](handoff.md). Partner-facing troubleshooting is in the [partner guide](partner-guide.md).
 
-## System shape
+## When a class is blocked
 
-| Piece          | Where it lives                                           | Notes                                                         |
-| -------------- | -------------------------------------------------------- | ------------------------------------------------------------- |
-| Website        | Vercel, deployed from `develop`                          | Every merge to `develop` goes straight to production          |
-| Database       | MongoDB Atlas, via `MONGO_URI`                           | Holds learner records: saves, quiz results, classroom rosters |
-| Authentication | Clerk                                                    | Route protection runs in middleware (`src/proxy.ts`)          |
-| Games          | Unity WebGL builds committed under `public/game/<Game>/` | Served as static assets from the website                      |
+1. Record the time, page/game, device/browser, affected group, and visible error. Keep learner names,
+   answers, and credentials out of tickets and shared screenshots.
+2. Check the current production deployment in Vercel, then database connectivity in Atlas. If
+   sign-in fails, check the Clerk application. The public health probe is currently blocked; see below.
+3. If a recent release broke the lesson, have the hosting owner roll back to a known working
+   deployment. Tell the educator whether to retry or pause, through the agreed support channel.
+4. After recovery, verify a real learner can save progress and complete a quiz. Record the cause,
+   affected release, recovery action, and any missing data for follow-up.
 
-## Health check
+## Services and health
 
-`GET /api/health` — unauthenticated, carries no learner data.
+| Service                | Responsibility                                                            |
+| ---------------------- | ------------------------------------------------------------------------- |
+| Vercel                 | Website, API, static Unity builds; production currently follows `develop` |
+| MongoDB Atlas          | Classroom rosters, game saves, quiz results, registered-user records      |
+| Clerk                  | Registered-user identity and role claims                                  |
+| GitHub Actions / Unity | Build games from their source repositories and open website promotion PRs |
 
-```sh
-curl -s https://<site>/api/health | jq
-```
-
-Returns `200` when healthy and `503` otherwise, so an uptime monitor can alert without parsing the
-body. It reports:
-
-- **database** — connection ready state. `degraded` means queries would buffer and eventually time
-  out, which presents as a hang rather than an error.
-- **games** — for each embedded build, whether `index.html`, `_source_sha.txt`, and `_build_id.txt`
-  are present, plus the source SHA, build id, and build time. A missing file means the artifact was
-  promoted incompletely, which otherwise only shows up as a blank canvas for a child.
-- **release** — the deploying commit, so you can tell exactly what is live.
-
-Point an uptime monitor at this every 5 minutes.
-
-## Alerts worth configuring
-
-| Signal                            | Threshold              | Why it matters                           | First response                  |
-| --------------------------------- | ---------------------- | ---------------------------------------- | ------------------------------- |
-| `/api/health` non-200             | 2 consecutive failures | Site or database is down                 | Check Vercel status, then Atlas |
-| `scope: "database"` errors        | Any in 5 minutes       | Learner records are not being written    | Check Atlas connection limits   |
-| `scope: "progress-save"` errors   | >5 in 15 minutes       | Children are losing game progress        | Check API logs and Atlas        |
-| `scope: "quiz-save"` errors       | >3 in 15 minutes       | Learning outcomes are not being recorded | Same                            |
-| `scope: "unity-boot"` errors      | >5 in 15 minutes       | A game build is broken for everyone      | Roll back the game artifact     |
-| Vercel build failure on `develop` | Any                    | Production deploy blocked                | See rollback below              |
-
-Ownership: assign one named person per alert before launch. An alert with no owner is not an alert.
-
-## Error reports
-
-Errors are written as single-line JSON via `reportError` in `src/lib/server/observability.ts`:
-
-```json
-{
-  "level": "error",
-  "scope": "progress-save",
-  "event": "save-failed",
-  "correlationId": "…",
-  "environment": "production",
-  "release": "abc123",
-  "message": "…",
-  "context": { "gameId": "PenguinRun" }
-}
-```
-
-Two properties are deliberate and should be preserved:
-
-- **Context is primitives only.** Objects and arrays are dropped rather than serialized, so a quiz
-  answer, a child's name, or a whole request body cannot be attached by accident.
-- **Scopes are distinguishable.** A WebGL boot failure and a save failure need different responses,
-  so they must be separable in an alert query.
-
-### Adding a hosted error tracker
-
-`setErrorSink` in the same module is the seam. Wire it once at startup and every existing call site
-begins reporting there with no other change:
-
-```ts
-setErrorSink((report) => Sentry.captureMessage(report.message, { extra: report }));
-```
-
-Choose a tool with a data-processing agreement appropriate for a product used by children, and
-confirm it does not capture request bodies or session replay by default.
-
-## Rollback
-
-### The website
-
-Fastest path is Vercel's instant rollback: **Deployments → pick the last known-good → Promote to
-Production**. This re-serves a previous build without a git operation and takes effect immediately.
-
-To roll back in git instead — which is what you want if the bad change must not come back on the
-next deploy:
+**Known monitoring blocker, verified 5 September 2026:** an unauthenticated request to
+`/api/health` on the live site returns `401`. The handler is designed to report deployment health,
+but [`src/proxy.ts`](../src/proxy.ts) requires sign-in before the request reaches it. Resolve that
+restriction and verify the complete request path before configuring a public health monitor.
 
 ```sh
-git switch develop
-git pull --ff-only
-git revert -m 1 <merge-commit-sha>    # -m 1 for a merge commit
-git push
+curl -i --max-time 20 https://kids-first-initiative-site.vercel.app/api/health
 ```
 
-Confirm afterwards with `curl -s https://<site>/api/health | jq .release`.
+When the handler is reachable, its response is `200` for healthy checks and `503` for failed checks:
 
-### A game build
+| Field             | Meaning and limit                                                                                                                 |
+| ----------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| `release`         | Website commit, or `null` if deployment metadata is unavailable                                                                   |
+| `checks.database` | Connection state; this does not test successful reads/writes or restore capability                                                |
+| `checks.games[]`  | Presence of `index.html`, `_source_sha.txt`, and `_build_id.txt`, plus source/build identifiers; this does not load the real game |
 
-Game artifacts are committed to this repository, so a bad build is reverted like any other change.
-Identify the live build first:
+Use Vercel's deployment commit and the game markers under `/game/<Game>/` to identify a release
+while public health is blocked. `node scripts/validate-webgl-build.mjs` performs more complete
+artifact checks locally/CI; actual gameplay still needs a browser and device.
 
-```sh
-curl -s https://<site>/api/health | jq '.checks.games'
-```
+## Logging and alerts
 
-Then revert the commit that promoted it, and re-check that `sourceSha` moved back.
+[`reportError`](../src/lib/server/observability.ts) emits JSON containing `scope`, `event`,
+`correlationId`, environment, release, message, and optional stack. Search Vercel logs by those
+fields where the call site uses them. A correlation ID identifies a report; it is not automatically
+propagated through every request. Other code still uses ordinary console messages.
 
-## Releasing a game build
+The context filter drops objects/arrays but accepts strings. **It does not redact names, answers,
+secrets, error messages, or stacks.** Callers must supply non-identifying context and review the
+error itself. Do not add raw request bodies or learner details to logs.
 
-Promotion is driven by the **build-unity-webgl** workflow. Do not copy artifacts by hand.
+The browser's game-save and quiz-save failures largely use console logging; a server log monitor
+will not see all of them. `setErrorSink` connects reports from this server module to an optional
+tracker, not every browser error. Confirm coverage and data capture before selecting a vendor.
 
-1. Actions → **build-unity-webgl** → Run workflow.
-2. Choose the game and the exact source commit, tag, or branch to build.
-3. Leave **promote** enabled to open a website pull request automatically.
+Suggested initial alerts, to tune after observing traffic:
 
-The workflow builds the requested revision, stamps provenance markers, validates that the artifact
-has a loader, framework, wasm, and data asset of plausible size plus an `index.html` that references
-the loader, and confirms the diff touches only that game's directory. It then opens a pull request
-stating the source repository, full source SHA, Unity version, and a link to the build run.
+| Signal                          | Starting threshold                                   | First action                                                      |
+| ------------------------------- | ---------------------------------------------------- | ----------------------------------------------------------------- |
+| Public health, once unblocked   | Two consecutive failures, checked every five minutes | Inspect Vercel and Atlas                                          |
+| Database errors                 | Any in five minutes                                  | Check database access, availability, and connection limits        |
+| Production deployment fails     | Each failed production build                         | Inspect the build log; verify the prior deployment still serves   |
+| Game boot / save / quiz failure | Configure after these browser events are collected   | Determine scope; protect unsaved work and inspect game/API errors |
 
-The promotion job can push a branch and open a pull request and nothing else. It cannot merge or
-deploy: a human reviews and merges, and merging is what deploys.
+Give every alert a named responder and backup in [handoff.md](handoff.md). Send a test alert and
+record delivery; an intended threshold is not evidence that monitoring exists.
 
-If the build fails validation, no pull request is opened and the deployed site is untouched.
+## Roll back
 
-**The promotion job validates itself.** A pull request opened by a workflow using the default token
-does not start `on: pull_request` workflows — GitHub suppresses them so a workflow cannot trigger
-itself — so the promotion pull request arrives with its checks queued as "action required".
+1. Open Vercel's production deployment history and select a known working deployment. Use
+   **Instant Rollback** where available; confirm the target commit before proceeding.
+2. Verify the production URL, actual game loading, and a synthetic learner's quiz/save flow.
+3. Create a revert PR against `develop` so the bad change does not return with the next release.
+   Revert a normal/squash commit with `git revert <sha>`; use `git revert -m 1 <sha>` only for a merge
+   commit after confirming its first parent. A game artifact promotion is reverted the same way.
+4. After the corrected deployment passes verification, restore normal production promotion.
+   If `main` has become production, the revert on `develop` must also be promoted.
 
-Rather than depend on that, the promotion job runs the checks that actually say something about a
-game artifact before it opens the pull request: it validates the build files, confirms the diff
-touches only that game, and builds the site against the new artifact. A broken artifact therefore
-fails while there is still nothing to review.
+A rollback changes deployed code, not MongoDB data or configuration. Vercel may disable automatic
+production assignment after a rollback; check before assuming a subsequent merge goes live.
+See [Vercel's rollback procedure](https://vercel.com/docs/instant-rollback) and the
+[release guide](releases.md).
 
-Of everything `ci` runs, only those two say anything about a game build. The unit tests mock their
-dependencies, and the browser tests replace the Unity build with a stub shell, so neither ever loads
-the real artifact.
+## Backup and recovery
 
-You can still approve the pull request's queued checks from the **Actions** tab, and it is worth
-doing for anything beyond a plain artifact swap. It is no longer the only thing standing between a
-bad build and production.
+The repository is not a backup of learner records. An Atlas owner must verify the production
+cluster's backup features and fill in this record:
 
-A working personal access token would make those checks run on their own. `UNITY_REPO_TOKEN` was
-tried and reverted: it is present but not valid, so the job failed to authenticate and opened no
-pull request at all. A GitHub App token is the sturdier option if someone wants to set one up —
-unlike a personal token it does not expire and its pull requests do trigger workflows.
+| Recovery setting                       | Confirmed value                |
+| -------------------------------------- | ------------------------------ |
+| Backup enabled / retention             | **Unverified** / \_\_\_ days   |
+| Point-in-time recovery                 | **Unverified**                 |
+| Acceptable data loss / time to restore | **_ / _**, agreed with partner |
+| Authorized restore operator / backup   | **_ / _**                      |
+| Last successful drill / evidence       | **_ / _**                      |
 
-Concurrency is keyed per game, so two promotions of the same game cannot interleave.
+For a restore drill:
 
-## Database backup and restore
+1. Restore a chosen backup into an isolated temporary cluster; never overwrite production for a drill.
+2. Give only the drill operator access. Use a local/private environment pointed at that cluster
+   and verify class history, rosters, quizzes, and saved progress against the expected snapshot.
+   Use an approved test account; do not expose restored learner records in a public preview.
+3. Record the snapshot time, elapsed recovery time, checks, and any missing records. Compare these
+   with the agreed recovery targets.
+4. Remove the temporary environment and cluster after recording evidence; revoke temporary access.
 
-MongoDB Atlas takes the backups; this repository holds no copy of learner data.
+A real production restore requires coordination with the partner: stop conflicting writes and
+identify which records would be lost since the restore point before replacing production data.
 
-**Before launch, confirm and record here:**
+## Routine ownership
 
-- [ ] Atlas backup is enabled on the production cluster
-- [ ] Retention period: \_\_\_\_ days
-- [ ] Point-in-time restore available: yes / no
-- [ ] Who can perform a restore: \_\_\_\_
-
-**Restore drill — run this once before launch, and record the date.** An untested backup is not a
-backup.
-
-1. In Atlas, choose **Backup → Restore** and target a **new** cluster, never production.
-2. Point a local checkout at it: `MONGO_URI=<restored-cluster-uri> npm run dev`.
-3. Verify an educator can open a class in Class History and see its roster and quiz results.
-4. Delete the temporary cluster.
-5. Record the drill date and who ran it: \_\_\_\_
-
-Restoring over production is a last resort: it discards everything written since the snapshot,
-including a class currently in session.
-
-## Incident triage
-
-1. **Check `/api/health`.** It separates a database problem from a broken game build in one request.
-2. **Check Vercel** for a failed or in-progress deploy on `develop`.
-3. **Search logs by `correlationId`** to follow one incident across reports; filter by `scope` to
-   identify the subsystem.
-4. **Decide: roll back or fix forward.** During a live class, roll back — an educator with thirty
-   children waiting cannot absorb a fix-forward cycle.
-5. **Record what happened** and, if the cause was not visible from the health check or logs, add the
-   signal that would have made it visible.
-
-## Known operational characteristics
-
-- **`develop` is production today.** There is no staging branch or release gate; a merge deploys.
-  Treat every merge to `develop` as a production change. [releases.md](./releases.md) describes the
-  `main`/`develop` split that replaces this, and the single Vercel setting that switches it on.
-- **Classroom sessions expire after 8 hours.** An educator reporting that "the code stopped working"
-  is usually an expired session, not an outage. They can reopen the class from Class History, which
-  issues a new code.
-- **A reopened class retires every previous access code.** A student holding an old code cannot
-  rejoin, by design.
-- **`ClassroomSession` relies on a unique partial index** to guarantee one live continuation per
-  class. It builds in the background on first connect, and a failure is logged as
-  `ClassroomSession index build failed`. If a class ever shows two live sessions, check that first.
+Before a teaching session, verify the intended release and test both games. Regularly review failed
+deployments, browser reports, dependency alerts, backups, and service billing. Review access at each
+team transition. Track incidents and follow-up work in the repository that owns the failure.

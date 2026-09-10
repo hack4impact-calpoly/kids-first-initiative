@@ -15,18 +15,14 @@ It covers:
 - No horizontal overflow at each viewport in the matrix below
 - No long animations under `prefers-reduced-motion: reduce`
 
-It does not fail the build. There are pre-existing violations that need a browser to triage, and a
-permanently red required check trains people to ignore CI. The Playwright report is uploaded as a CI
-artifact on every run — read it, and shrink what it reports.
+It does not fail the build. Known violations still need triage. Inspect the Playwright report
+uploaded by CI and record findings alongside the manual pass.
 
-Keyboard focus visibility is **not** automated. An automated version proved timing-dependent,
-passing and failing across runs on pages that had not changed, and a flaky check is worse than none.
-It is in the manual audit below.
+Keyboard focus visibility is checked manually; the previous automated check was unreliable.
 
-Automated checks catch roughly a third of real accessibility problems. Everything below is the part
-a machine cannot judge, and it is not optional.
+Automated checks do not establish full accessibility. Complete the manual checks below.
 
-## Supported device and browser matrix
+## Target device and browser matrix
 
 | Target                           | Why it is on the list                                            | Input              |
 | -------------------------------- | ---------------------------------------------------------------- | ------------------ |
@@ -37,12 +33,14 @@ a machine cannot judge, and it is not optional.
 | Desktop Safari ≥1440 wide        | Second engine for CSS and audio differences                      | Mouse, keyboard    |
 | Phone, 390×844, Chrome or Safari | Parents opening a handoff link                                   | Touch              |
 
-Anything outside this list is unsupported. Record it as such rather than leaving it ambiguous.
+This is a test plan, not a verified support claim. The partner must confirm the actual school
+devices/browsers and record accepted coverage after testing. Record exact OS/browser versions.
 
 ## Before each pass
 
-- [ ] Note the release SHA under test: `curl -s https://<site>/api/health | jq .release`
-- [ ] Confirm both game builds report `ok`: `curl -s https://<site>/api/health | jq '.checks.games'`
+- [ ] Record the website release from Vercel and source SHAs from `/game/<Game>/_source_sha.txt`.
+      Anonymous `/api/health` currently returns `401`; use it only after the [monitoring gap](operations.md) is fixed.
+- [ ] Validate both game artifacts and open both real games; file markers alone do not prove gameplay works.
 - [ ] Have a working classroom access code, or create one
 
 ## The learning loop — run per game, per device
@@ -53,6 +51,7 @@ different input demands, so passing one says nothing about the other.
 - [ ] Pre-quiz renders, all answers reachable and selectable
 - [ ] Game launches; the Unity canvas is visible and not clipped
 - [ ] Core interaction works with this device's input (drag on touch, keyboard where offered)
+- [ ] Penguin Run's potential-energy rail and track-placement guides are visible above the level art
 - [ ] Progress saves mid-game (leave and return)
 - [ ] Completion routes to the post-quiz exactly once
 - [ ] Post-quiz shows the earlier score, and improvement reads correctly
@@ -96,6 +95,8 @@ resolve record ownership differently and have historically broken independently.
 - [ ] Game interrupted mid-play (tab switch, lock screen): progress is not lost on return
 - [ ] Classroom session expires mid-play: the learner is told to rejoin, not silently dropped
 - [ ] Offline mid-save: the failure is surfaced and retryable, not swallowed
+- [ ] A second learner on the same device does not inherit the first learner's credentials or Unity progress
+- [ ] Rejoining a reopened class preserves the intended learner identity, or the limitation is recorded
 
 ## Recording results
 

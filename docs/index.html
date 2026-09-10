@@ -1,1453 +1,283 @@
-<title>KFI Project Handbook</title>
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link
-  rel="stylesheet"
-  href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Karla:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
-/>
-
-<style>
-  /* Palette is lifted from the application's own stylesheets so the handbook and the product it
-     documents read as one system: #2a256f is the educator dashboard's primary, #4476bb its accent. */
-  :root {
-    --ground: #f6f7fb;
-    --surface: #ffffff;
-    --surface-sunk: #eef1f8;
-    --line: #dfe3ef;
-    --line-soft: #eaedf5;
-    --ink: #171633;
-    --ink-muted: #5b5f7a;
-    --ink-faint: #878ba6;
-    --indigo: #2a256f;
-    --blue: #4476bb;
-    --blue-wash: #eaf1fb;
-    --green: #1f7a44;
-    --green-wash: #e7f5ec;
-    --amber: #8a5210;
-    --amber-wash: #fbf1e0;
-    --slate: #55607a;
-    --slate-wash: #eef0f5;
-    --shadow: 0 1px 2px rgba(23, 22, 51, 0.05), 0 12px 28px rgba(23, 22, 51, 0.05);
-  }
-
-  @media (prefers-color-scheme: dark) {
-    :root:not([data-theme="light"]) {
-      --ground: #101020;
-      --surface: #191a2c;
-      --surface-sunk: #14152444;
-      --line: #2b2d44;
-      --line-soft: #23253a;
-      --ink: #eceef7;
-      --ink-muted: #a2a7c0;
-      --ink-faint: #7c819c;
-      --indigo: #b3aeef;
-      --blue: #8fb6ea;
-      --blue-wash: #1b2440;
-      --green: #7bd3a0;
-      --green-wash: #14291d;
-      --amber: #e8b169;
-      --amber-wash: #2c2113;
-      --slate: #a2a7c0;
-      --slate-wash: #21243a;
-      --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 14px 32px rgba(0, 0, 0, 0.28);
-    }
-  }
-
-  :root[data-theme="dark"] {
-    --ground: #101020;
-    --surface: #191a2c;
-    --surface-sunk: #14152444;
-    --line: #2b2d44;
-    --line-soft: #23253a;
-    --ink: #eceef7;
-    --ink-muted: #a2a7c0;
-    --ink-faint: #7c819c;
-    --indigo: #b3aeef;
-    --blue: #8fb6ea;
-    --blue-wash: #1b2440;
-    --green: #7bd3a0;
-    --green-wash: #14291d;
-    --amber: #e8b169;
-    --amber-wash: #2c2113;
-    --slate: #a2a7c0;
-    --slate-wash: #21243a;
-    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 14px 32px rgba(0, 0, 0, 0.28);
-  }
-
-  * {
-    box-sizing: border-box;
-  }
-
-  body {
-    margin: 0;
-    background: var(--ground);
-    color: var(--ink);
-    font-family: "Karla", "Avenir Next", "Segoe UI", sans-serif;
-    font-size: 16.5px;
-    line-height: 1.62;
-    -webkit-font-smoothing: antialiased;
-  }
-
-  h1,
-  h2,
-  h3,
-  h4 {
-    font-family: "Poppins", "Trebuchet MS", "Avenir Next", sans-serif;
-    text-wrap: balance;
-    margin: 0;
-  }
-
-  a {
-    color: var(--blue);
-    text-underline-offset: 3px;
-  }
-
-  a:focus-visible,
-  button:focus-visible {
-    outline: 3px solid var(--blue);
-    outline-offset: 3px;
-    border-radius: 3px;
-  }
-
-  code,
-  .mono {
-    font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, monospace;
-    font-size: 0.88em;
-  }
-
-  code {
-    background: var(--surface-sunk);
-    border: 1px solid var(--line-soft);
-    border-radius: 4px;
-    padding: 0.08em 0.36em;
-  }
-
-  /* ---------- shell ---------- */
-
-  .shell {
-    max-width: 1240px;
-    margin: 0 auto;
-    padding: 0 clamp(20px, 4vw, 48px) 96px;
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 44px;
-  }
-
-  @media (min-width: 1040px) {
-    .shell {
-      grid-template-columns: 232px minmax(0, 1fr);
-      align-items: start;
-      gap: 56px;
-    }
-  }
-
-  /* ---------- masthead ---------- */
-
-  .masthead {
-    border-bottom: 1px solid var(--line);
-    background: var(--surface);
-  }
-
-  .masthead-inner {
-    max-width: 1240px;
-    margin: 0 auto;
-    padding: clamp(40px, 6vw, 72px) clamp(20px, 4vw, 48px) clamp(32px, 4vw, 48px);
-    display: flex;
-    flex-direction: column;
-    gap: 18px;
-  }
-
-  .eyebrow {
-    font-family: "IBM Plex Mono", ui-monospace, monospace;
-    font-size: 12.5px;
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
-    color: var(--indigo);
-    margin: 0;
-  }
-
-  .masthead h1 {
-    font-size: clamp(2.1rem, 5.2vw, 3.1rem);
-    font-weight: 600;
-    letter-spacing: -0.025em;
-    line-height: 1.08;
-  }
-
-  .lede {
-    margin: 0;
-    max-width: 66ch;
-    font-size: clamp(1.02rem, 1.6vw, 1.18rem);
-    color: var(--ink-muted);
-  }
-
-  .masthead-meta {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px 22px;
-    padding-top: 8px;
-    font-family: "IBM Plex Mono", ui-monospace, monospace;
-    font-size: 12.5px;
-    color: var(--ink-faint);
-  }
-
-  /* ---------- section index ---------- */
-
-  .index {
-    display: none;
-  }
-
-  @media (min-width: 1040px) {
-    .index {
-      display: block;
-      position: sticky;
-      top: 32px;
-      padding-top: 52px;
-    }
-  }
-
-  .index h2 {
-    font-family: "IBM Plex Mono", ui-monospace, monospace;
-    font-size: 11.5px;
-    font-weight: 600;
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
-    color: var(--ink-faint);
-    margin-bottom: 14px;
-  }
-
-  .index ol {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    border-left: 1px solid var(--line);
-  }
-
-  .index a {
-    display: block;
-    padding: 5px 0 5px 16px;
-    margin-left: -1px;
-    border-left: 2px solid transparent;
-    color: var(--ink-muted);
-    text-decoration: none;
-    font-size: 14.5px;
-  }
-
-  .index a:hover {
-    color: var(--ink);
-    border-left-color: var(--blue);
-  }
-
-  /* ---------- content ---------- */
-
-  main {
-    display: flex;
-    flex-direction: column;
-    gap: 60px;
-    min-width: 0;
-    padding-top: 52px;
-  }
-
-  section {
-    scroll-margin-top: 24px;
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-  }
-
-  section > h2 {
-    font-size: clamp(1.42rem, 2.6vw, 1.78rem);
-    font-weight: 600;
-    letter-spacing: -0.015em;
-    padding-bottom: 12px;
-    border-bottom: 1px solid var(--line);
-  }
-
-  section > h2 .num {
-    font-family: "IBM Plex Mono", ui-monospace, monospace;
-    font-size: 0.62em;
-    font-weight: 500;
-    color: var(--ink-faint);
-    margin-right: 12px;
-  }
-
-  h3 {
-    font-size: 1.11rem;
-    font-weight: 600;
-    letter-spacing: -0.005em;
-  }
-
-  p {
-    margin: 0;
-    max-width: 68ch;
-  }
-
-  .prose {
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-  }
-
-  ul.plain {
-    margin: 0;
-    padding-left: 20px;
-    max-width: 68ch;
-    display: flex;
-    flex-direction: column;
-    gap: 9px;
-  }
-
-  /* ---------- metrics ---------- */
-
-  .metrics {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(214px, 1fr));
-    gap: 14px;
-  }
-
-  .metric {
-    background: var(--surface);
-    border: 1px solid var(--line);
-    border-radius: 12px;
-    padding: 18px 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    box-shadow: var(--shadow);
-  }
-
-  .metric .value {
-    font-family: "Poppins", sans-serif;
-    font-size: 2rem;
-    font-weight: 600;
-    line-height: 1;
-    letter-spacing: -0.03em;
-    font-variant-numeric: tabular-nums;
-  }
-
-  .metric .label {
-    font-family: "IBM Plex Mono", ui-monospace, monospace;
-    font-size: 11px;
-    letter-spacing: 0.13em;
-    text-transform: uppercase;
-    color: var(--ink-faint);
-  }
-
-  /* The caveat is the point: a number without its limitation invites false confidence. */
-  .metric .caveat {
-    font-size: 13.8px;
-    line-height: 1.5;
-    color: var(--ink-muted);
-  }
-
-  /* ---------- pills ---------- */
-
-  .pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 2px 10px;
-    border-radius: 999px;
-    font-family: "IBM Plex Mono", ui-monospace, monospace;
-    font-size: 11px;
-    font-weight: 500;
-    letter-spacing: 0.07em;
-    text-transform: uppercase;
-    white-space: nowrap;
-    border: 1px solid transparent;
-  }
-
-  .pill-done {
-    background: var(--green-wash);
-    color: var(--green);
-    border-color: color-mix(in srgb, var(--green) 28%, transparent);
-  }
-
-  .pill-human {
-    background: var(--amber-wash);
-    color: var(--amber);
-    border-color: color-mix(in srgb, var(--amber) 32%, transparent);
-  }
-
-  .pill-open {
-    background: var(--slate-wash);
-    color: var(--slate);
-    border-color: color-mix(in srgb, var(--slate) 26%, transparent);
-  }
-
-  /* ---------- tables ---------- */
-
-  .table-wrap {
-    overflow-x: auto;
-    border: 1px solid var(--line);
-    border-radius: 12px;
-    background: var(--surface);
-    box-shadow: var(--shadow);
-  }
-
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 14.6px;
-  }
-
-  th,
-  td {
-    text-align: left;
-    padding: 11px 16px;
-    border-bottom: 1px solid var(--line-soft);
-    vertical-align: top;
-  }
-
-  th {
-    font-family: "IBM Plex Mono", ui-monospace, monospace;
-    font-size: 10.8px;
-    font-weight: 600;
-    letter-spacing: 0.13em;
-    text-transform: uppercase;
-    color: var(--ink-faint);
-    background: var(--surface-sunk);
-    white-space: nowrap;
-  }
-
-  tbody tr:last-child td {
-    border-bottom: none;
-  }
-
-  td.mono {
-    white-space: nowrap;
-  }
-
-  /* ---------- component cards ---------- */
-
-  .cards {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(268px, 1fr));
-    gap: 14px;
-  }
-
-  .card {
-    background: var(--surface);
-    border: 1px solid var(--line);
-    border-radius: 12px;
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 9px;
-    box-shadow: var(--shadow);
-    /* Grid items default to min-width:auto, which lets an unbreakable token such as a file
-       path widen the track and spill past the card edge. */
-    min-width: 0;
-  }
-
-  .card h3 {
-    font-size: 1.02rem;
-  }
-
-  .card p {
-    font-size: 14.6px;
-    color: var(--ink-muted);
-    max-width: none;
-  }
-
-  .card .where {
-    font-family: "IBM Plex Mono", ui-monospace, monospace;
-    font-size: 11.5px;
-    color: var(--ink-faint);
-    word-break: break-all;
-  }
-
-  /* ---------- callout ---------- */
-
-  .note {
-    border-left: 3px solid var(--blue);
-    background: var(--blue-wash);
-    border-radius: 0 10px 10px 0;
-    padding: 15px 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-
-  .note.warn {
-    border-left-color: var(--amber);
-    background: var(--amber-wash);
-  }
-
-  .note strong {
-    font-family: "Poppins", sans-serif;
-    font-weight: 600;
-  }
-
-  .note p {
-    font-size: 15px;
-    max-width: 66ch;
-  }
-
-  /* ---------- checklist ---------- */
-
-  .checklist {
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-    counter-reset: task;
-  }
-
-  .task {
-    background: var(--surface);
-    border: 1px solid var(--line);
-    border-left: 4px solid var(--amber);
-    border-radius: 10px;
-    padding: 20px 22px;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    box-shadow: var(--shadow);
-  }
-
-  .task.blocker {
-    border-left-color: var(--amber);
-  }
-
-  .task.decision {
-    border-left-color: var(--slate);
-  }
-
-  .task-head {
-    display: flex;
-    align-items: baseline;
-    gap: 12px;
-    flex-wrap: wrap;
-  }
-
-  .task-head h3 {
-    font-size: 1.06rem;
-    flex: 1 1 auto;
-    min-width: 200px;
-  }
-
-  .task-meta {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px 20px;
-    font-family: "IBM Plex Mono", ui-monospace, monospace;
-    font-size: 11.6px;
-    color: var(--ink-faint);
-    padding-top: 2px;
-    border-top: 1px dashed var(--line);
-  }
-
-  .task-meta b {
-    color: var(--ink-muted);
-    font-weight: 500;
-  }
-
-  .steps {
-    margin: 0;
-    padding-left: 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 7px;
-    font-size: 14.8px;
-  }
-
-  pre {
-    margin: 0;
-    overflow-x: auto;
-    background: var(--surface-sunk);
-    border: 1px solid var(--line-soft);
-    border-radius: 9px;
-    padding: 13px 16px;
-    font-family: "IBM Plex Mono", ui-monospace, monospace;
-    font-size: 13px;
-    line-height: 1.62;
-  }
-
-  pre code {
-    background: none;
-    border: none;
-    padding: 0;
-    font-size: inherit;
-  }
-
-  footer {
-    max-width: 1240px;
-    margin: 0 auto;
-    padding: 28px clamp(20px, 4vw, 48px) 60px;
-    border-top: 1px solid var(--line);
-    color: var(--ink-faint);
-    font-size: 14px;
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    * {
-      animation-duration: 0.01ms !important;
-      transition-duration: 0.01ms !important;
-      scroll-behavior: auto !important;
-    }
-  }
-</style>
-
-<header class="masthead">
-  <div class="masthead-inner">
-    <p class="eyebrow">Kids First Initiative</p>
-    <h1>Project Handbook</h1>
-    <p class="lede">
-      A web platform that teaches STEM to children in underserved communities. Children play one of two Unity WebGL
-      games and answer a short quiz before and after each one, so that what they learned can be measured. This handbook
-      covers the architecture, the classroom data model, the API, testing, releases, and operations.
-    </p>
-    <div class="masthead-meta">
-      <span>Updated 31 Aug 2026</span>
-      <span>Repo · kids-first-initiative-site</span>
-      <span>Integration branch · develop</span>
-      <span>Stack · Next 16.3.3 · React 18 · MongoDB · Clerk</span>
-    </div>
-  </div>
-</header>
-
-<div class="shell">
-  <nav class="index" aria-label="Sections">
-    <h2>Contents</h2>
-    <ol>
-      <li><a href="#overview">Overview</a></li>
-      <li><a href="#getting-started">Getting started</a></li>
-      <li><a href="#architecture">Architecture</a></li>
-      <li><a href="#classroom">Classroom sessions</a></li>
-      <li><a href="#api">API</a></li>
-      <li><a href="#testing">Testing</a></li>
-      <li><a href="#releases">Releases</a></li>
-      <li><a href="#operations">Operations</a></li>
-      <li><a href="#outstanding">Outstanding work</a></li>
-      <li><a href="#reading">Further reading</a></li>
-    </ol>
-  </nav>
-
-  <main>
-    <!-- ================= OVERVIEW ================= -->
-    <section id="overview">
-      <h2>Overview</h2>
-
-      <div class="prose">
-        <p>
-          Each game is bracketed by a quiz. A child answers the pre-quiz, plays, then answers the post-quiz. The
-          difference between the two scores is the outcome the organisation reports, so every result must be
-          attributable to a particular child in a particular class. Progress saves continuously during play, which means
-          a dropped connection or a closed tab does not lose a child's work.
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Kids First Initiative handoff: partner guidance, developer setup, and ownership."
+    />
+    <title>Kids First Initiative · Handoff</title>
+    <style>
+      :root {
+        color-scheme: light;
+        font-family: system-ui, sans-serif;
+        color: #211e46;
+        background: #f5f6fa;
+        line-height: 1.65;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+      }
+      main {
+        max-width: 980px;
+        margin: auto;
+        padding: 48px 28px;
+      }
+      h1,
+      h2,
+      h3 {
+        color: #2a256f;
+        line-height: 1.2;
+      }
+      h1 {
+        font-size: clamp(2rem, 6vw, 3.5rem);
+        letter-spacing: -0.04em;
+        margin: 12px 0 20px;
+      }
+      h2 {
+        font-size: 1.5rem;
+        margin: 36px 0 16px;
+      }
+      h3 {
+        font-size: 1.12rem;
+        margin-top: 0;
+      }
+      p {
+        margin: 0 0 16px;
+      }
+      a {
+        color: #294f9a;
+        text-underline-offset: 0.16em;
+        overflow-wrap: anywhere;
+      }
+      a:hover {
+        color: #211e46;
+      }
+      a:focus-visible {
+        outline: 3px solid #294f9a;
+        outline-offset: 4px;
+      }
+      .eyebrow,
+      .meta {
+        color: #56576c;
+        font-size: 0.9rem;
+      }
+      .eyebrow {
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        font-weight: 650;
+      }
+      .intro {
+        max-width: 750px;
+        font-size: 1.15rem;
+      }
+      .cards {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 16px;
+        margin: 24px 0;
+      }
+      .card {
+        min-width: 0;
+        border: 1px solid #dcddea;
+        background: white;
+        border-radius: 12px;
+        padding: 22px;
+      }
+      .card p {
+        font-size: 0.95rem;
+      }
+      .notice {
+        border-left: 4px solid #966019;
+        padding: 18px 22px;
+        background: #fff3df;
+        border-radius: 0 8px 8px 0;
+      }
+      .notice p:last-child {
+        margin-bottom: 0;
+      }
+      ol,
+      ul {
+        padding-left: 24px;
+      }
+      li {
+        margin-bottom: 10px;
+      }
+      code {
+        font-family: ui-monospace, monospace;
+        font-size: 0.9em;
+        overflow-wrap: anywhere;
+      }
+      footer {
+        border-top: 1px solid #dcddea;
+        margin-top: 32px;
+        padding-top: 20px;
+        font-size: 0.9rem;
+      }
+      @media (max-width: 700px) {
+        .cards {
+          grid-template-columns: 1fr;
+        }
+        main {
+          padding: 28px 20px;
+        }
+      }
+      @media print {
+        :root {
+          background: white;
+          color: black;
+          font-size: 10pt;
+        }
+        main {
+          max-width: none;
+          padding: 0;
+        }
+        h1 {
+          font-size: 26pt;
+        }
+        h2 {
+          margin-top: 22px;
+        }
+        .cards {
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+          gap: 10px;
+        }
+        .card {
+          padding: 12px;
+        }
+        .card,
+        .notice,
+        li {
+          break-inside: avoid;
+        }
+        h2,
+        h3 {
+          break-after: avoid;
+        }
+        a {
+          color: black;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <p class="eyebrow">Kids First Initiative · Project handoff</p>
+        <h1>Start here, next team.</h1>
+        <p class="intro">
+          Two learning games, before-and-after quizzes, and classroom dashboards. This overview helps the partner
+          organization and incoming developers find what they need to run, maintain, and take ownership of the platform.
         </p>
-      </div>
+        <p><a href="https://kids-first-initiative-site.vercel.app">Open the website</a></p>
+        <p class="meta">Reviewed 5 September 2026 · Website baseline <code>3258a3f</code></p>
+      </header>
 
-      <h3>Games</h3>
-      <div class="cards">
-        <div class="card">
-          <h3>States of Matter</h3>
-          <p>
-            Melting, freezing, and condensing. Reports progress as completed <em>stage ids</em>, which are named
-            puzzles.
-          </p>
-          <p class="where">public/game/StatesOfMatter/</p>
-        </div>
-        <div class="card">
-          <h3>Penguin Run</h3>
-          <p>
-            Gravity and friction, taught through track building. Reports progress as completed <em>level numbers</em>.
-          </p>
-          <p class="where">public/game/PenguinRun/</p>
-        </div>
-      </div>
+      <nav class="cards" aria-label="Choose your guide">
+        <article class="card">
+          <h2 style="margin-top: 0">For the partner</h2>
+          <p>Run a class, interpret results, understand practical limits, and get help.</p>
+          <a href="partner-guide.md">Partner and educator guide</a>
+        </article>
+        <article class="card">
+          <h2 style="margin-top: 0">For developers</h2>
+          <p>Set up the website, find the right code, preserve data contracts, and verify changes.</p>
+          <a href="handbook.md">Developer handbook</a>
+        </article>
+        <article class="card">
+          <h2 style="margin-top: 0">For both teams</h2>
+          <p>Assign service owners, transfer access, review open gaps, and record acceptance.</p>
+          <a href="handoff.md">Handoff checklist</a>
+        </article>
+      </nav>
 
-      <div class="prose">
-        <p>The two games report progress in different formats, so each has its own browser-test coverage.</p>
-      </div>
-
-      <h3>Roles</h3>
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Role</th>
-              <th>Capabilities</th>
-              <th>Identified by</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>Learner (classroom)</td>
-              <td>Joins with a class code, plays, answers both quizzes</td>
-              <td>HTTP-only cookie tied to a participant record</td>
-            </tr>
-            <tr>
-              <td>Learner (personal)</td>
-              <td>Signs in and plays independently</td>
-              <td>Clerk account</td>
-            </tr>
-            <tr>
-              <td>Educator</td>
-              <td>Opens a class, shares the code, monitors progress, reopens past classes</td>
-              <td>Clerk account with the educator role, linked to a <code>Teacher</code> record</td>
-            </tr>
-            <tr>
-              <td>Administrator</td>
-              <td>Cross-class analytics and learning outcomes</td>
-              <td>Clerk account with the admin role</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <div class="note">
-        <strong>Classroom learners do not have accounts</strong>
+      <aside class="notice" aria-label="Readiness">
         <p>
-          The audience is young children on shared school hardware, where account creation is both a barrier to starting
-          a lesson and a larger collection of personal data than the platform needs. Each child becomes a participant
-          identified by a display name and an opaque cookie.
+          <strong>Handoff readiness still needs sign-off.</strong> The website's <code>develop</code> branch currently
+          feeds production. Real-device testing, backup recovery, support ownership, and the controlled release path
+          need verification.
         </p>
-      </div>
-    </section>
-
-    <!-- ================= GETTING STARTED ================= -->
-    <section id="getting-started">
-      <h2>Getting started</h2>
-
-      <div class="prose">
-        <h3>Prerequisites</h3>
-        <ul>
-          <li>Node.js 20 or 22. CI tests both.</li>
-          <li>A MongoDB connection string.</li>
-          <li>Clerk API keys, obtained from a tech lead.</li>
-        </ul>
-
-        <h3>Setup</h3>
-        <pre><code>npm install
-npm run dev</code></pre>
-        <p>Create a <code>.env</code> file in the repository root with three values:</p>
-        <pre><code>MONGO_URI=
-NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=
-CLERK_SECRET_KEY=</code></pre>
         <p>
-          There is no <code>.env.example</code> in the repository; the list above is the current requirement. Install
-          the Prettier and ESLint editor extensions and enable format on save. A Husky hook formats staged files on
-          commit.
+          The live health endpoint returned <code>401 Unauthorized</code> during this review. Public monitoring must be
+          fixed and tested before anyone relies on it.
         </p>
-      </div>
+      </aside>
 
-      <h3>Commands</h3>
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Command</th>
-              <th>Purpose</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td class="mono">npm run dev</td>
-              <td>Development server</td>
-            </tr>
-            <tr>
-              <td class="mono">npm test</td>
-              <td>Unit tests</td>
-            </tr>
-            <tr>
-              <td class="mono">npm run test:e2e</td>
-              <td>Browser tests. Requires MongoDB</td>
-            </tr>
-            <tr>
-              <td class="mono">npm run test:a11y</td>
-              <td>Accessibility report</td>
-            </tr>
-            <tr>
-              <td class="mono">npm run lint</td>
-              <td>ESLint</td>
-            </tr>
-            <tr>
-              <td class="mono">npm run format</td>
-              <td>Prettier</td>
-            </tr>
-            <tr>
-              <td class="mono">npm audit</td>
-              <td>Dependency vulnerabilities</td>
-            </tr>
-            <tr>
-              <td class="mono">node scripts/validate-webgl-build.mjs</td>
-              <td>Verify both embedded game builds are complete</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <div class="prose">
-        <h3>Contributing</h3>
+      <section aria-labelledby="class">
+        <h2 id="class">The classroom experience</h2>
         <p>
-          Branch from <code>develop</code>. Run <code>npm run lint</code> and <code>npm test</code> before opening a
-          pull request against <code>develop</code>. Do not branch from <code>main</code>; see
-          <a href="#releases">Releases</a> for why it may not exist yet.
+          <strong>States of Matter</strong> teaches heating, cooling, and changes of state through Matter Kitchen, Pipe
+          Rescue, and State Lab. <strong>Penguin Run</strong> teaches gravity, friction, and potential energy through
+          three track-building levels.
         </p>
-      </div>
+        <ol>
+          <li>
+            An educator signs in and opens a named class. Learners join with a display name and the shared class code; a
+            personal account is optional.
+          </li>
+          <li>
+            Each learner takes the pre-quiz, plays the game, and finishes the post-quiz. Educators confirm results in
+            their dashboard or class history.
+          </li>
+          <li>
+            Codes last eight hours. Reopen an existing class to continue its history and share the new code. Guest
+            learners may get a new identity when they rejoin.
+          </li>
+        </ol>
+        <p>
+          Keep one learner per browser profile during a session. Use an internet connection and test the actual
+          classroom devices. Saved website records do not guarantee offline or cross-device game recovery.
+        </p>
+      </section>
 
-      <div class="note">
-        <strong>Environment notes</strong>
-        <p>Several local failures have environmental causes:</p>
+      <section aria-labelledby="results">
+        <h2 id="results">What the results mean</h2>
+        <p>
+          A score change from 40% to 60% is 20 percentage points. Missing quizzes are not zeroes. Admin averages weight
+          classes equally, and pre/post averages may contain different learners. Report scope and missing results; do
+          not describe these figures as proof of individual learning gains. The partner guide explains the limits.
+        </p>
+      </section>
+
+      <section aria-labelledby="transfer">
+        <h2 id="transfer">Make the transfer concrete</h2>
         <ul>
           <li>
-            <code>next build</code> fails at prerender without Clerk keys. Compilation and type checking have already
-            run by that point. To build locally with placeholder keys, set
-            <code>NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY</code> and <code>CLERK_SECRET_KEY</code> to test values first.
+            <strong>Name owners and backups:</strong> partner support, repositories, Vercel hosting, MongoDB, Clerk,
+            Unity licensing, learner data, and billing. Test the incoming team's access.
           </li>
           <li>
-            <code>npx tsc --noEmit</code> reports pre-existing errors in <code>e2e/</code> and <code>.next/</code>.
-            Filter with <code>grep -E '^src/'</code> to see whether your change is clean.
+            <strong>Demonstrate the work:</strong> a fresh developer setup, both classroom game/quiz loops, a
+            failed-save retry, guest rejoining, and a second learner using a shared device.
           </li>
-          <li>Run <code>npm install</code> after switching branches. Dependencies have moved substantially.</li>
           <li>
-            The browser suite requires MongoDB, which is not available in every environment. CI is the authoritative
-            check for both the build and the browser tests.
+            <strong>Prove recovery:</strong> build and release a game, rehearse rollback, verify an isolated database
+            restore, and deliver an alert to the named responder.
           </li>
         </ul>
-      </div>
-    </section>
-
-    <!-- ================= ARCHITECTURE ================= -->
-    <section id="architecture">
-      <h2>Architecture</h2>
-
-      <div class="cards">
-        <div class="card">
-          <h3>Authorization</h3>
-          <p>
-            API handlers are the security boundary. Ownership is derived server-side, never from a client-supplied id.
-          </p>
-          <p class="where">src/lib/server/apiAuthorization.ts</p>
-        </div>
-        <div class="card">
-          <h3>Classroom history</h3>
-          <p>
-            Groups sessions into classes, merges rosters across reopens, computes metrics. Pure functions with no
-            database calls.
-          </p>
-          <p class="where">src/lib/server/classroomHistory.ts</p>
-        </div>
-        <div class="card">
-          <h3>Classroom data access</h3>
-          <p>Loads class chains and class detail, and performs reopening.</p>
-          <p class="where">src/lib/server/classroomClasses.ts</p>
-        </div>
-        <div class="card">
-          <h3>Unity bridge</h3>
-          <p>
-            Receives progress from the game over <code>postMessage</code>, saves it, and routes to the post-quiz once.
-          </p>
-          <p class="where">src/components/GamePlayer.tsx</p>
-        </div>
-        <div class="card">
-          <h3>Quiz progress</h3>
-          <p>Reads the baseline score recorded before play.</p>
-          <p class="where">src/lib/server/quizProgress.ts</p>
-        </div>
-        <div class="card">
-          <h3>Admin analytics</h3>
-          <p>Aggregates outcomes across classes and reports the scope each figure covers.</p>
-          <p class="where">src/lib/server/adminAnalytics.ts</p>
-        </div>
-        <div class="card">
-          <h3>Observability</h3>
-          <p>Structured error reports carrying a correlation id and release SHA.</p>
-          <p class="where">src/lib/server/observability.ts</p>
-        </div>
-        <div class="card">
-          <h3>Quiz scoring</h3>
-          <p>Score normalisation shared by the dashboards and class history.</p>
-          <p class="where">src/lib/quizScoring.ts</p>
-        </div>
-      </div>
-
-      <div class="prose">
         <p>
-          The repository contains 23 pages under the App Router and 10 Mongoose schemas in <code>src/database/</code>.
-          Hidden links and disabled buttons are user-interface conveniences and carry no security weight. All access
-          decisions are enforced in the API handler.
+          Record the accepted release, evidence, limitations, and follow-up owners in the
+          <a href="handoff.md">handoff checklist</a>. Contact names and account details remain unassigned until the
+          teams fill them in.
         </p>
-      </div>
-    </section>
+      </section>
 
-    <!-- ================= CLASSROOM ================= -->
-    <section id="classroom">
-      <h2>Classroom sessions</h2>
-
-      <div class="prose">
+      <footer>
         <p>
-          Read this section before changing anything that touches a class. Most of the subtle bugs in this project have
-          come from misreading the model below.
+          Maintenance references: <a href="releases.md">releases</a> · <a href="operations.md">operations</a> ·
+          <a href="accessibility-qa.md">device QA</a> · <a href="api-authorization.md">API authorization</a> ·
+          <a href="game-progress-bridge.md">game integration</a>.
         </p>
         <p>
-          A class is a chain of sessions, not a single record. When an educator reopens a closed class, the system
-          appends a new session linked to the previous one; it does not reactivate the old session. Historical records
-          continue to reference the sessions that produced them, so nothing is rewritten or re-attributed.
+          This is a brief overview, not a second copy of the manuals. The linked Markdown guides are the detailed
+          source. Share the <code>docs</code> folder with this file to keep local links working, or use the repository's
+          README. This page can also be printed to PDF.
         </p>
-      </div>
-
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Field</th>
-              <th>Meaning</th>
-              <th>Consequence</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td class="mono">rootSessionId</td>
-              <td>Head of the continuation chain; null on an original session</td>
-              <td>A class is addressed by <code>rootSessionId ?? _id</code></td>
-            </tr>
-            <tr>
-              <td class="mono">continuedFromId</td>
-              <td>The session this one continues</td>
-              <td>Determines chain order</td>
-            </tr>
-            <tr>
-              <td class="mono">participantKey</td>
-              <td>Stable per learner per class: <code>clerk:&lt;id&gt;</code> or <code>guest:&lt;hash&gt;</code></td>
-              <td>
-                A returning learner collapses to a single roster entry. It embeds a Clerk id, so it must not be sent to
-                a client
-              </td>
-            </tr>
-            <tr>
-              <td class="mono">status + expiresAt</td>
-              <td>Session state is derived, never stored</td>
-              <td>
-                <code>closed</code> means closed; <code>active</code> with a past expiry means expired. Use
-                <code>resolveClassroomSessionState</code>
-              </td>
-            </tr>
-            <tr>
-              <td class="mono">participant:&lt;id&gt;</td>
-              <td>Owner key on a classroom learner's saves and quiz records</td>
-              <td>Changes when a learner rejoins after a reopen; lineage resolution carries their progress across</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <div class="note">
-        <strong>Constraints and lifetime</strong>
-        <p>
-          A unique partial index permits at most one active continuation per class, which prevents two simultaneous
-          reopens from leaving a class with two working access codes. The index builds in the background, and a failure
-          logs <code>ClassroomSession index build failed</code>. If a class appears to have two live sessions, check the
-          index first.
-        </p>
-        <p>
-          Classroom sessions expire after 8 hours. An educator reporting that a code has stopped working has usually hit
-          the expiry rather than an outage; they can reopen the class from Class History, which issues a new code and
-          retires all previous ones.
-        </p>
-      </div>
-    </section>
-
-    <!-- ================= API ================= -->
-    <section id="api">
-      <h2>API</h2>
-
-      <div class="prose">
-        <p>
-          33 endpoints across 22 route files. Two conventions apply throughout: identity is derived on the server, and a
-          resource the caller cannot access returns <code>404</code> rather than <code>403</code>, so its existence
-          cannot be probed.
-        </p>
-      </div>
-
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Route</th>
-              <th>Methods</th>
-              <th>Access</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td class="mono">/api/health</td>
-              <td>GET</td>
-              <td>Public. Deployment health only, no learner data</td>
-            </tr>
-            <tr>
-              <td class="mono">/api/classroom-sessions</td>
-              <td>GET POST PATCH</td>
-              <td>Signed-in educator, scoped to their own classes</td>
-            </tr>
-            <tr>
-              <td class="mono">/api/classroom-sessions/join</td>
-              <td>POST</td>
-              <td>Public with an active code. Issues a classroom credential</td>
-            </tr>
-            <tr>
-              <td class="mono">/api/classroom-sessions/history</td>
-              <td>GET</td>
-              <td>Educator, own classes only</td>
-            </tr>
-            <tr>
-              <td class="mono">/api/classroom-sessions/history/:classId</td>
-              <td>GET</td>
-              <td>Owning educator or administrator</td>
-            </tr>
-            <tr>
-              <td class="mono">/api/classroom-sessions/history/:classId/reopen</td>
-              <td>POST</td>
-              <td>Owning educator only. No administrator bypass</td>
-            </tr>
-            <tr>
-              <td class="mono">/api/gameData</td>
-              <td>GET POST</td>
-              <td>GET administrator; POST owner or credentialed participant</td>
-            </tr>
-            <tr>
-              <td class="mono">/api/gameData/mine</td>
-              <td>GET</td>
-              <td>The caller's own saves, including classroom lineage</td>
-            </tr>
-            <tr>
-              <td class="mono">/api/gameData/:saveId</td>
-              <td>GET PATCH</td>
-              <td>Owner, administrator, or the educator who owns the classroom</td>
-            </tr>
-            <tr>
-              <td class="mono">/api/quiz, /api/quiz/:id</td>
-              <td>GET POST PUT</td>
-              <td>Owner or administrator; educators may read within their classroom</td>
-            </tr>
-            <tr>
-              <td class="mono">/api/admin/analytics</td>
-              <td>GET</td>
-              <td>Administrator</td>
-            </tr>
-            <tr>
-              <td class="mono">/api/admin/:id/role</td>
-              <td>PATCH</td>
-              <td>Administrator</td>
-            </tr>
-            <tr>
-              <td class="mono">/api/auth/admin-access</td>
-              <td>GET</td>
-              <td>Administrator</td>
-            </tr>
-            <tr>
-              <td class="mono">/api/users, /api/users/:id</td>
-              <td>GET POST PUT</td>
-              <td>Administrator</td>
-            </tr>
-            <tr>
-              <td class="mono">/api/users/me, /api/users/me/photo</td>
-              <td>GET PATCH</td>
-              <td>Signed-in user, own record</td>
-            </tr>
-            <tr>
-              <td class="mono">/api/sessions, /api/sessions/:sessionId</td>
-              <td>GET POST PATCH</td>
-              <td>Owner or administrator</td>
-            </tr>
-            <tr>
-              <td class="mono">/api/events</td>
-              <td>GET POST</td>
-              <td>GET administrator; POST owner or credentialed participant</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <div class="note">
-        <strong>Fields that never reach a client</strong>
-        <p>
-          Stored records contain Clerk ids, quiz ids, and per-question answers, and <code>participantKey</code> embeds a
-          Clerk id. History and analytics endpoints return projected views that never select these fields. Full policy
-          is in <a href="./api-authorization.md">api-authorization.md</a>.
-        </p>
-      </div>
-    </section>
-
-    <!-- ================= TESTING ================= -->
-    <section id="testing">
-      <h2>Testing</h2>
-
-      <div class="metrics">
-        <div class="metric">
-          <span class="label">Unit tests</span>
-          <span class="value">128</span>
-          <span class="caveat">Across 15 files. Run with <code>npm test</code>.</span>
-        </div>
-        <div class="metric">
-          <span class="label">Browser tests</span>
-          <span class="value">18</span>
-          <span class="caveat">Across 2 files. Run with <code>npm run test:e2e</code>.</span>
-        </div>
-        <div class="metric">
-          <span class="label">Accessibility checks</span>
-          <span class="value">26</span>
-          <span class="caveat">Run with <code>npm run test:a11y</code>.</span>
-        </div>
-      </div>
-
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Layer</th>
-              <th>Covers</th>
-              <th>Does not cover</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>Unit</td>
-              <td>Authorization decisions, classroom chain logic, scoring, analytics</td>
-              <td>The real database; MongoDB is mocked throughout</td>
-            </tr>
-            <tr>
-              <td>Browser</td>
-              <td>Both games' completion contracts, save creation and retry, classroom attribution</td>
-              <td>Authorization, pending a test-only auth stub (issue #69)</td>
-            </tr>
-            <tr>
-              <td>Accessibility</td>
-              <td>WCAG 2.1 AA via axe, horizontal overflow at device sizes, reduced motion</td>
-              <td>Audio-only instructions, touch target reach, operability of the games themselves</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <div class="prose">
-        <p>
-          Unit tests mock MongoDB, so they cover authorization and business logic but not database wiring. Connection
-          ordering, index behaviour, and query shape are unverified at that layer. A recent high-severity bug, in which
-          a query was issued before the connection was opened and hung for ten seconds before failing, was invisible to
-          the whole unit suite and was found by reading the call graph.
-        </p>
-        <p>
-          The accessibility suite reports; it does not gate merges. Known violations remain, so a green pipeline does
-          not mean a clean report. The Playwright report is uploaded on every CI run; read it. Keyboard focus visibility
-          is checked by hand, because the automated version was timing-dependent and was removed.
-        </p>
-        <p>
-          Both browser suites share one harness in <code>e2e/support/gameBridge.ts</code>. Do not add a local copy. The
-          States suite kept its own until August 2026; the two drifted, and the stale copy left that suite dependent on
-          a live database, where it failed 11 of its 13 tests.
-        </p>
-        <p>CI runs on Node 20 and 22.</p>
-      </div>
-    </section>
-
-    <!-- ================= RELEASES ================= -->
-    <section id="releases">
-      <h2>Releases</h2>
-
-      <div class="note">
-        <strong><code>develop</code> is currently the production branch</strong>
-        <p>
-          Vercel deploys from it, so every merged pull request goes live immediately. There is no staging environment
-          and no separate release step. Treat every merge as a production change until the switch described below has
-          been made.
-        </p>
-      </div>
-
-      <div class="prose">
-        <p>
-          The replacement is already built. <code>main</code> holds what is live, <code>develop</code> remains the
-          integration branch, and the <code>promote-to-production</code> workflow fast-forwards <code>main</code> to a
-          chosen commit. It refuses any commit that is not already an ancestor of <code>develop</code> and does not have
-          a passing CI run for that exact SHA.
-        </p>
-        <p>
-          Once <code>main</code> is the production branch, reverting a commit on <code>develop</code> no longer changes
-          what is live. The revert must also be promoted.
-        </p>
-
-        <h3>Unity builds</h3>
-        <p>
-          Game builds are committed to <code>public/game/&lt;Game&gt;/</code>. The
-          <code>build-unity-webgl</code> workflow builds a game from its source repository and opens a pull request
-          containing only that game's directory. The promotion job validates the artifact and builds the site against it
-          before opening the pull request, because a pull request opened with the default <code>GITHUB_TOKEN</code> does
-          not trigger <code>on: pull_request</code> workflows and would otherwise arrive with no checks. The workflow's
-          <code>source_ref</code> input accepts a branch, tag, or commit SHA.
-        </p>
-        <p>Full detail is in <a href="./releases.md">releases.md</a>.</p>
-      </div>
-    </section>
-
-    <!-- ================= OPERATIONS ================= -->
-    <section id="operations">
-      <h2>Operations</h2>
-
-      <div class="prose">
-        <p>
-          <code>GET /api/health</code> distinguishes a database problem from a broken game build in a single request. It
-          carries no learner data and returns <code>503</code> on failure, so an uptime monitor can alert on it without
-          parsing the body.
-        </p>
-        <pre><code>curl -s https://&lt;site&gt;/api/health | jq</code></pre>
-      </div>
-
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Field</th>
-              <th>Reports</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td class="mono">database</td>
-              <td>
-                Connection state. <code>degraded</code> means queries would buffer and time out, which presents as a
-                hang rather than an error
-              </td>
-            </tr>
-            <tr>
-              <td class="mono">games</td>
-              <td>
-                Per game: whether the required files are present, and the Unity source SHA currently live. Makes a
-                rollback verifiable
-              </td>
-            </tr>
-            <tr>
-              <td class="mono">release</td>
-              <td>The deployed commit, so an alert identifies which version is affected</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <div class="prose">
-        <p>
-          Errors are reported through <code>reportError</code> as single-line JSON with a correlation id, environment,
-          and release. Its context parameter accepts only primitives, so a quiz answer, a child's name, or a request
-          body cannot be attached by accident. Scopes such as <code>unity-boot</code> and
-          <code>progress-save</code> stay distinguishable so alerts can separate them. <code>setErrorSink</code> is the
-          integration point for a hosted tracker.
-        </p>
-      </div>
-
-      <div class="note">
-        <strong>During a live class, roll back rather than fix forward</strong>
-        <p>
-          An educator with a room of children waiting cannot absorb a fix-and-deploy cycle, and Vercel's instant
-          rollback takes effect without a git operation. Full runbook is in
-          <a href="./operations.md">operations.md</a>.
-        </p>
-      </div>
-    </section>
-
-    <!-- ================= OUTSTANDING ================= -->
-    <section id="outstanding">
-      <h2>Outstanding work</h2>
-
-      <div class="prose">
-        <h3>Before launch</h3>
-        <p>Five items remain. None are blocked on code; each needs dashboard access, hardware, or a decision.</p>
-      </div>
-
-      <div class="checklist">
-        <article class="task">
-          <div class="task-head">
-            <h3>Run the MongoDB restore drill</h3>
-            <span class="pill pill-human">Needs Atlas access</span>
-          </div>
-          <p>Children's learning records are stored without a verified means of recovering them.</p>
-          <ol class="steps">
-            <li>Restore from Atlas → Backup → Restore, targeting a <strong>new</strong> cluster, never production.</li>
-            <li>Run <code>MONGO_URI=&lt;restored-uri&gt; npm run dev</code></li>
-            <li>
-              Confirm an educator can open a class and see its roster and quiz results. Checking only that the cluster
-              starts does not exercise the data.
-            </li>
-            <li>Delete the temporary cluster, and record the date and who ran the drill.</li>
-          </ol>
-          <div class="task-meta">
-            <span><b>Access</b> MongoDB Atlas</span><span><b>Time</b> ~1 hour</span
-            ><span><b>Detail</b> operations.md</span>
-          </div>
-        </article>
-
-        <article class="task">
-          <div class="task-head">
-            <h3>Point Vercel's production branch at <code>main</code></h3>
-            <span class="pill pill-human">Needs dashboard</span>
-          </div>
-          <p>
-            This enables the release gate. All three steps belong together, because a <code>main</code> branch that
-            exists while Vercel still deploys <code>develop</code> looks authoritative and goes stale immediately.
-          </p>
-          <ol class="steps">
-            <li>
-              <code>git fetch origin &amp;&amp; git branch main origin/develop &amp;&amp; git push origin main</code>
-            </li>
-            <li>Protect both branches under Settings → Branches.</li>
-            <li>Set Vercel → Project → Settings → Git → Production Branch to <code>main</code>.</li>
-            <li>Promote once and confirm with <code>curl -s https://&lt;site&gt;/api/health | jq .release</code></li>
-          </ol>
-          <div class="task-meta">
-            <span><b>Access</b> Vercel + repo settings</span><span><b>Time</b> ~15 min</span
-            ><span><b>Detail</b> releases.md</span>
-          </div>
-        </article>
-
-        <article class="task">
-          <div class="task-head">
-            <h3>Run the device QA pass</h3>
-            <span class="pill pill-human">Needs hardware</span>
-          </div>
-          <p>The largest remaining item, and the only one that produces further work in the form of a defect list.</p>
-          <ol class="steps">
-            <li>
-              Run the full loop for both games twice: once signed in, once as a classroom participant. These resolve
-              ownership differently and have broken independently.
-            </li>
-            <li>
-              Play with sound off. Both games are audio-heavy, and any instruction delivered only as audio will be
-              missed.
-            </li>
-            <li>
-              Confirm the on-screen guides in Penguin Run render. They have been through three rounds of fixes and have
-              never been visually verified.
-            </li>
-          </ol>
-          <div class="task-meta">
-            <span><b>Access</b> Chromebook + iPad, with sound</span><span><b>Time</b> ~1 week + fix tail</span
-            ><span><b>Detail</b> accessibility-qa.md</span>
-          </div>
-        </article>
-
-        <article class="task">
-          <div class="task-head">
-            <h3>Assign an owner to each alert</h3>
-            <span class="pill pill-human">Decision</span>
-          </div>
-          <p>
-            Every alert in the runbook needs a named person. The team that built the project is graduating, so alerts
-            left unassigned will have no default recipient.
-          </p>
-          <div class="task-meta">
-            <span><b>Access</b> None</span><span><b>Time</b> ~30 min</span><span><b>Detail</b> operations.md</span>
-          </div>
-        </article>
-
-        <article class="task">
-          <div class="task-head">
-            <h3>Choose an error-tracking vendor</h3>
-            <span class="pill pill-human">Decision</span>
-          </div>
-          <p>
-            <code>setErrorSink</code> is the integration point. The choice has been deferred because it carries a
-            recurring cost and a data-processing agreement for a product used by children. Confirm the vendor does not
-            capture request bodies or session replay by default; the reporting layer deliberately excludes answers and
-            names, and session replay would reintroduce them.
-          </p>
-          <div class="task-meta">
-            <span><b>Access</b> Budget approval</span><span><b>Time</b> ~2 hours once chosen</span>
-          </div>
-        </article>
-      </div>
-
-      <h3>Status by area</h3>
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Area</th>
-              <th>Status</th>
-              <th>Remaining</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>Learning loop, both games</td>
-              <td><span class="pill pill-done">Shipped</span></td>
-              <td>Verification on real devices</td>
-            </tr>
-            <tr>
-              <td>Classroom sessions, reopening, history</td>
-              <td><span class="pill pill-done">Shipped</span></td>
-              <td>—</td>
-            </tr>
-            <tr>
-              <td>Admin analytics</td>
-              <td><span class="pill pill-done">Shipped</span></td>
-              <td>—</td>
-            </tr>
-            <tr>
-              <td>Dependency security</td>
-              <td><span class="pill pill-done">0 known</span></td>
-              <td>Six pre-existing React hook warnings need a browser to diagnose</td>
-            </tr>
-            <tr>
-              <td>Unity build and promotion (#48)</td>
-              <td><span class="pill pill-done">Shipped</span></td>
-              <td>—</td>
-            </tr>
-            <tr>
-              <td>Observability and health checks (#49)</td>
-              <td><span class="pill pill-human">Needs a person</span></td>
-              <td>Restore drill, alert owners, vendor choice</td>
-            </tr>
-            <tr>
-              <td>Accessibility and device QA (#50)</td>
-              <td><span class="pill pill-human">Needs a person</span></td>
-              <td>The manual pass</td>
-            </tr>
-            <tr>
-              <td>End-to-end coverage (#47)</td>
-              <td><span class="pill pill-open">Open</span></td>
-              <td>Deterministic database fixtures, per-test seeding</td>
-            </tr>
-            <tr>
-              <td>Browser authorization tests (#69)</td>
-              <td><span class="pill pill-open">Open</span></td>
-              <td>A test-only auth stub, not a middleware change</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </section>
-
-    <!-- ================= FURTHER READING ================= -->
-    <section id="reading">
-      <h2>Further reading</h2>
-
-      <div class="cards">
-        <div class="card">
-          <h3>operations.md</h3>
-          <p>On-call runbook: health checks, alert thresholds, rollback, restore drill, incident triage.</p>
-        </div>
-        <div class="card">
-          <h3>releases.md</h3>
-          <p>Branch topology, the migration to <code>main</code>, promotion workflow guarantees.</p>
-        </div>
-        <div class="card">
-          <h3>accessibility-qa.md</h3>
-          <p>Device matrix, the manual launch pass, and the limits of the automation.</p>
-        </div>
-        <div class="card">
-          <h3>api-authorization.md</h3>
-          <p>Route inventory, principals, response conventions.</p>
-        </div>
-        <div class="card">
-          <h3>game-progress-bridge.md</h3>
-          <p>The contract Unity builds use to report progress.</p>
-        </div>
-        <div class="card">
-          <h3>handbook.md</h3>
-          <p>This page as plain text, for search and for reading in the repository.</p>
-        </div>
-      </div>
-    </section>
-  </main>
-</div>
+      </footer>
+    </main>
+  </body>
+</html>
