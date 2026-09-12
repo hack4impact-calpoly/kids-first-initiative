@@ -2,7 +2,8 @@
 
 import { FormEvent, useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { SignIn, useAuth, useSignIn } from "@clerk/nextjs";
+import { SignIn, useAuth } from "@clerk/nextjs";
+import { useSignIn } from "@clerk/nextjs/legacy";
 import {
   Box,
   Button,

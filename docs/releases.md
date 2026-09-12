@@ -15,6 +15,36 @@ Treat a merge to `develop` as a production release until the branch switch is ve
    Public `/api/health` currently returns `401`; use deployment details and the
    [runbook](operations.md) until that is resolved.
 
+## Activate Clerk production on Vercel
+
+The website uses Clerk's built-in Frontend API proxy at `/__clerk`, including its JavaScript
+assets. It activates with a `pk_live_` publishable key; `pk_test_` keys keep local development and
+previews on Clerk's development service, even in production builds. No additional rewrite or
+proxy environment variable is needed. See [Clerk's proxy guide](https://clerk.com/docs/guides/dashboard/dns-domains/proxy-fapi).
+
+The service owner must complete activation; merging the code alone does not switch instances:
+
+1. Create the Clerk production instance with application domain
+   `kids-first-initiative-site.vercel.app` (no path). Keep the detected `/__clerk` proxy setting.
+2. Deploy the proxy-supporting code. In Vercel's **Production** environment, set
+   `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` and `CLERK_SECRET_KEY` to the matching `pk_live_` / `sk_live_`
+   pair, then redeploy. The public key is embedded at build time. Keep Development and Preview
+   on test keys; never put the secret key in client code, Git, or a public variable.
+3. In Clerk production, configure the session claim `{"role":"{{user.public_metadata.role}}"}`
+   and review sign-in/sign-up settings. Provision and synchronize the first production admin as
+   described in [Accounts and roles](handbook.md#accounts-and-roles); do not assume test accounts
+   or role settings exist in the new instance.
+4. Confirm Clerk's domain/proxy verification succeeds. If asked for a full proxy URL, use
+   `https://kids-first-initiative-site.vercel.app/__clerk`. In a fresh browser, confirm requests
+   to `/__clerk/v1/environment` and Clerk's JavaScript return successfully. Test educator
+   registration/email verification, sign-in, sign-out, admin access (including MFA if enabled),
+   and classroom guest joining. A non-admin must not gain admin access.
+
+Automated tests cover proxy forwarding and anonymous access rules with synthetic keys, not live
+Clerk accounts. Record the real-account checks before declaring activation complete. If activation
+breaks sign-in, restore the previous matching key pair **and redeploy** while investigating;
+rolling back code alone does not restore environment settings.
+
 ## Release a Unity game
 
 Editing Unity source does not change the live website. Compiled WebGL files are committed under

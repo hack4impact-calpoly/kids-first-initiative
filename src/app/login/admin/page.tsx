@@ -2,7 +2,8 @@
 
 import { FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useAuth, useClerk, useSignIn } from "@clerk/nextjs";
+import { useAuth, useClerk } from "@clerk/nextjs";
+import { useSignIn } from "@clerk/nextjs/legacy";
 import { Box, Button, Flex, Heading, Input, Stack, Text } from "@chakra-ui/react";
 
 const ADMIN_DASHBOARD_ROUTE = "/adminDashboard";

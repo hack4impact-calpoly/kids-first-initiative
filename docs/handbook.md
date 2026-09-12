@@ -54,6 +54,11 @@ application owner must set that account's public metadata role to `admin`, then 
 user registration/synchronization. Sign out and back in after role changes to refresh claims.
 Verify `/api/users/me` and `/adminDashboard`; a new account is not automatically an administrator.
 
+For Vercel production keys and `/__clerk` proxy activation, follow the
+[release checklist](releases.md#activate-clerk-production-on-vercel). Clerk SDK 7 is installed;
+the custom facilitator/admin forms intentionally use `@clerk/nextjs/legacy` hooks to preserve
+their existing sign-in and verification flows during the upgrade.
+
 ## How the parts connect
 
 ```text
