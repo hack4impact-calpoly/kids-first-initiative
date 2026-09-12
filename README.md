@@ -1,23 +1,35 @@
 # Kids First Initiative
 
-An educational web game to teach students about STEM topics like physics and states of matter.
+Two educational games, before/after quizzes, and classroom dashboards for Kids First Initiative.
+The website embeds the separately maintained States of Matter and Penguin Run Unity games.
 
-## Table of Contents
+**[Open the website](https://kids-first-initiative-site.vercel.app)** ·
+**[Handoff overview](docs/index.html)**
 
-- [Overview](#overview)
-  - [Purpose](#purpose)
-  - [Team](#team)
-- [Documentation](#documentation)
+## Start here
 
-## Overview
+| Reader                             | Guide                                                                          |
+| ---------------------------------- | ------------------------------------------------------------------------------ |
+| Partner, educator, or program lead | [Run a class, understand results, and get help](docs/partner-guide.md)         |
+| Incoming developer                 | [Setup, architecture, data rules, and testing](docs/handbook.md)               |
+| Outgoing and incoming owners       | [Access transfer, open gaps, and acceptance checklist](docs/handoff.md)        |
+| Release or support owner           | [Release process](docs/releases.md) · [Operations runbook](docs/operations.md) |
 
-### Purpose
+Review date: 5 September 2026. `develop` currently feeds production. Device QA, recovery, and
+ownership still need sign-off; the health endpoint currently rejects anonymous monitoring requests.
+See the [handoff checklist](docs/handoff.md) for evidence and next actions.
+
+Technical references: [API authorization](docs/api-authorization.md),
+[Unity progress contract](docs/game-progress-bridge.md), and [device/accessibility QA](docs/accessibility-qa.md).
+
+## Purpose
 
 Kids First Initiative is a non-profit organization whose mission is to spark a passion for Science, Technology, Engineering, Arts, and Math (STEAM) in young people from underserved communities. They teach live lessons using tangible, hands-on materials. This website aims to expand access to those lessons by enabling students to learn the same topics remotely.
 
-### Team
+## Original project team
 
-The Kids First Initiative team consists of 17 Cal Poly students. Over the course of about 9 months, we worked as a team to deploy this web application. The team members are listed below:
+Built by 17 Cal Poly students over approximately nine months. These are project credits;
+current support and service owners must be recorded in the [handoff checklist](docs/handoff.md).
 
 - [Matthew Lin](https://www.linkedin.com/in/matthewlin-sd/) - Project Manager
 - [Kasey Liu](https://www.linkedin.com/in/kasey-liu/) - Tech Lead
@@ -36,14 +48,3 @@ The Kids First Initiative team consists of 17 Cal Poly students. Over the course
 - [Chloe Low](https://www.linkedin.com) - Developer
 - [Trisha Chandwani](https://www.linkedin.com) - Developer
 - [Nathaniel Victorino](https://www.linkedin.com) - Developer
-
-## Documentation
-
-Start with the **[Project Handbook](docs/handbook.md)** — what the system does, how its parts fit
-together, local setup, contributing, and what remains before launch. There is a
-[rendered version](docs/index.html) for reading and sharing, and the Markdown is the one to search.
-
-Deeper references live alongside it in [`docs/`](docs/): the
-[operations runbook](docs/operations.md), [release process](docs/releases.md),
-[accessibility QA pass](docs/accessibility-qa.md), [API authorization policy](docs/api-authorization.md),
-and the [game progress bridge](docs/game-progress-bridge.md).

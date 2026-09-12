@@ -44,3 +44,22 @@ Unity scene or display label changes. A stage's persisted key is
 
 The website accepts both formats so existing Penguin Run builds remain
 compatible while States of Matter moves away from scene names and numeric IDs.
+
+## Completion and persistence
+
+The game first emits `unity-ready`; `UnityIFrame` replies with `site-context`. Progress messages
+must come from the embedded frame and the same origin. Keep the message envelope in the WebGL
+template so Unity does not wrap it twice.
+
+To finish, send a full snapshot with `gameCompleted: true`. For example, Penguin Run's final
+snapshot includes `completedLevels: [1, 2, 3]`. `GamePlayer` saves it before routing to the post-quiz,
+deduplicates completion navigation, and offers retry/sign-in/rejoin when that save fails.
+States of Matter emits the final signal from its explicit **TAKE THE QUIZ** action.
+
+The website stores completion records, but local Unity `PlayerPrefs` are a separate persistence
+layer. Do not promise offline recovery, cross-device resume, or isolation between children sharing
+one browser without testing those flows. See the game repositories' current limitations.
+
+Contract tests use `e2e/support/gameBridge.ts`, which replaces Unity with a shell. Changes to
+completion IDs, context, payloads, or quiz routing need coordinated website/game review and a real
+WebGL playthrough. Website save inspection alone does not prove Unity restored its runtime state.
