@@ -2,7 +2,8 @@
 
 import { FormEvent, useEffect, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { SignUp, useAuth, useSignUp } from "@clerk/nextjs";
+import { SignUp, useAuth } from "@clerk/nextjs";
+import { useSignUp } from "@clerk/nextjs/legacy";
 import { Box, Button, chakra, Flex, Heading, Input, Link as ChakraLink, PinInput, Stack, Text } from "@chakra-ui/react";
 
 const LOGIN_ROUTE = "/login/facilitator";
